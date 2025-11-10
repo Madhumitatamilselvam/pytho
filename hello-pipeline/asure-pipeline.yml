@@ -1,0 +1,25 @@
+# azure-pipelines.yml
+trigger:
+  - main   # Runs pipeline whenever code is pushed to 'main' branch
+
+pool:
+  vmImage: 'ubuntu-latest'   # Microsoft-hosted Linux agent
+
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.11'
+    displayName: 'Set up Python 3.11'
+
+  - script: |
+      python -m pip install --upgrade pip
+      if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    displayName: 'Install dependencies'
+
+  - script: |
+      python hello.py
+    displayName: 'Run Hello script'
+
+  - script: |
+      pytest -q
+    displayName: 'Run tests'
