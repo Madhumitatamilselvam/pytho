@@ -1,25 +1,47 @@
-# azure-pipelines.yml
+# ================================
+# Azure DevOps Pipeline YAML
+# For Self-Hosted Agent (Python Project)
+# ================================
+
 trigger:
-  - main   # Runs pipeline whenever code is pushed to 'main' branch
+  - main  # Runs pipeline automatically when code is pushed to 'main' branch
 
 pool:
-  vmImage: 'ubuntu-latest'   # Microsoft-hosted Linux agent
+  name: 'Default'   # 👈 Matches your self-hosted agent pool name
+  demands:
+    - agent.name -equals VSP-5CD4476MZ5   # 👈 Optional: ensures it runs only on your machine
 
 steps:
+  # Step 1: Checkout code from repo
+  - checkout: self
+    displayName: 'Checkout source code'
+
+  # Step 2: Set up Python version
   - task: UsePythonVersion@0
     inputs:
-      versionSpec: '3.11'
-    displayName: 'Set up Python 3.11'
+      versionSpec: '3.10'   # 👈 Change to your installed version if needed
+    displayName: 'Set up Python 3.10'
 
+  # Step 3: Install dependencies
   - script: |
+      echo "Installing Python dependencies..."
       python -m pip install --upgrade pip
-      if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      if exist requirements.txt (pip install -r requirements.txt)
     displayName: 'Install dependencies'
 
+  # Step 4: Run hello.py script
   - script: |
+      echo "Running hello.py..."
       python hello.py
-    displayName: 'Run Hello script'
+    displayName: 'Run Hello Script'
 
+  # Step 5: Run pytest for test files
   - script: |
-      pytest -q
-    displayName: 'Run tests'
+      echo "Running tests with pytest..."
+      pytest -v
+    displayName: 'Run Tests'
+
+  # Step 6: Show pipeline completion message
+  - script: |
+      echo "✅ Pipeline completed successfully!"
+    displayName: 'Pipeline Complete'
